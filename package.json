@@ -1,5 +1,5 @@
 {  
-  "name": "bettingEScraper",  
+  "name": "betEScraper",  
   "version": "0.0.1",
   "private": true,
   "description" : "get spanish state bets data and expose data through interface RESTful",
