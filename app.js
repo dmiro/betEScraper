@@ -1,4 +1,4 @@
-var bets = require('./lib/betsByDate');
+var bets = require('./lib/bets');
 
 bets.getBetsByDate('LAQU','20120817','20140129', function (error, result) {
     console.log('resultado:',result);
