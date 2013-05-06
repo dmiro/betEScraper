@@ -1,12 +1,22 @@
 var bets = require('./lib/bets');
 
-bets.getBetsByDate('LAQU','20130301','20140129', function (error, result) {
+
+// bets.getBetsByDate('LAQU','20130301','20140129', function (error, result) {
+//     console.log(JSON.stringify(result));
+//     //console.log(require('util').inspect(result));
+//     console.log(result[3].matchs[0].teams[0]);
+//     console.log(result[3].matchs[0].teams[1]);
+//     console.log(result[3].matchs[0].goals);
+//     console.log(result[3].matchs[0].result);
+// });
+
+bets.getLastBetPlayed('LAQU',function (error, result) {
     console.log(JSON.stringify(result));
     //console.log(require('util').inspect(result));
-    console.log(result[3].matchs[0].teams[0]);
-    console.log(result[3].matchs[0].teams[1]);
-    console.log(result[3].matchs[0].goals);
-    console.log(result[3].matchs[0].result);
+    console.log(result[0].matchs[0].teams[0]);
+    console.log(result[0].matchs[0].teams[1]);
+    console.log(result[0].matchs[0].goals);
+    console.log(result[0].matchs[0].result);
 });
 
 
