@@ -1,60 +1,90 @@
-var bets = require('./lib/bets');
+var http = require('http'),
+    bets = require('./lib/bets'), 
+    route = require('router')();
 
+var betsNameTypes = [];
+    betsNameTypes['primitiva'] = 'LAPR';
+    betsNameTypes['quiniela'] = 'LAQU';
+    
+var BET_TYPE_NOT_EXIST = 'bet type does not exist';
 
-bets.getBetsByDate('LAPR','20130301','20140129', function (error, result) {
-    console.log(JSON.stringify(result));
+//
+// Last bet
+//
+route.get('/{betNameType}/last', function(req, res) {
+    
+    if (!betsNameTypes[req.params.betNameType]){
+        res.writeHead(400);
+        res.end(BET_TYPE_NOT_EXIST);
+        console.log(BET_TYPE_NOT_EXIST);
+        return;    
+    } 
+    bets.getLastBetPlayed(betsNameTypes[req.params.betNameType], function (error, result) {
+        if (error){
+            res.writeHead(400);
+            res.end(JSON.stringify(error));
+            console.log(JSON.stringify(error));
+            return;
+        }
+        res.writeHead(200);
+        res.end(JSON.stringify(result));
+        console.log(JSON.stringify(result));
+    }); 
 });
 
-// bets.getBetsByDate('LAQU','20130301','20140129', function (error, result) {
-//     console.log(JSON.stringify(result));
-//     //console.log(require('util').inspect(result));
-//     console.log(result[3].matchs[0].teams[0]);
-//     console.log(result[3].matchs[0].teams[1]);
-//     console.log(result[3].matchs[0].goals);
-//     console.log(result[3].matchs[0].result);
-// });
+//
+// One date
+//
+route.get('/{betNameType}/{date}', function(req, res) {
+    
+    if (!betsNameTypes[req.params.betNameType]){
+        res.writeHead(400);
+        res.end(BET_TYPE_NOT_EXIST);
+        console.log(BET_TYPE_NOT_EXIST);
+        return;    
+    } 
+    var date = new Date(req.params.date);
+    bets.getBetsByDate(betsNameTypes[req.params.betNameType], date, date, function (error, result) {
+        if (error){
+            res.writeHead(400);
+            res.end(JSON.stringify(error));
+            console.log(JSON.stringify(error));
+            return;
+        }
+        res.writeHead(200);
+        res.end(JSON.stringify(result));
+        console.log(JSON.stringify(result));
+    }); 
+});
 
-// bets.getLastBetPlayed('LAQU',function (error, result) {
-//     console.log(JSON.stringify(result));
-//     //console.log(require('util').inspect(result));
-//     console.log(result[0].matchs[0].teams[0]);
-//     console.log(result[0].matchs[0].teams[1]);
-//     console.log(result[0].matchs[0].goals);
-//     console.log(result[0].matchs[0].result);
-// });
+//
+// Date range
+//
+route.get('/{betNameType}/start/{start}/end/{end}', function(req, res) {
+ 
+    if (!betsNameTypes[req.params.betNameType]){
+        res.writeHead(400);
+        res.end(BET_TYPE_NOT_EXIST);
+        console.log(BET_TYPE_NOT_EXIST);
+        return;    
+    } 
+    var startDate = new Date(req.params.start);
+    var endDate = ( req.params.end ? new Date(req.params.end) : new Date());
+    bets.getBetsByDate(betsNameTypes[req.params.betNameType], startDate, endDate, function (error, result) {
+        if (error){
+            res.writeHead(400);
+            res.end(JSON.stringify(error));
+            console.log(JSON.stringify(error));
+            return;
+        }
+        res.writeHead(200);
+        res.end(JSON.stringify(result));
+        console.log(JSON.stringify(result));
+    }); 
+    
+});
+
+http.createServer(route).listen(process.env.PORT);
+console.log('server listen IP:',process.env.IP,'PORT:',process.env.PORT,'...');
 
 
-// /**
-//  * Module dependencies.
-//  */
-
-// var express = require('express')
-//   , routes = require('./routes')
-//   , user = require('./routes/user')
-//   , http = require('http')
-//   , path = require('path');
-
-// var app = express();
-
-// // all environments
-// app.set('port', process.env.PORT || 3000);
-// app.set('views', __dirname + '/views');
-// app.set('view engine', 'jade');
-// app.use(express.favicon());
-// app.use(express.logger('dev'));
-// app.use(express.bodyParser());
-// app.use(express.methodOverride());
-// app.use(app.router);
-// app.use(express.static(path.join(__dirname, 'public')));
-
-// // development only
-// if ('development' == app.get('env')) {
-//   app.use(express.errorHandler());
-// }
-
-// app.get('/', routes.index);
-// app.get('/users', user.list);
-
-// http.createServer(app).listen(app.get('port'), function(){
-//   console.log('Express server listening on port ' + app.get('port'));
-// });
