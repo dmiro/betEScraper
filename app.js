@@ -1,30 +1,36 @@
 var http = require('http'),
-    bets = require('./lib/bets'), 
+    bets = require('./lib/bets'),
+    helper = require('./lib/helper'),
+    url = require('url'),
     route = require('router')();
 
 var betsNameTypes = [];
-    betsNameTypes['primitiva'] = 'LAPR';
-    betsNameTypes['quiniela'] = 'LAQU';
+    betsNameTypes.primitiva = 'LAPR';
+    betsNameTypes.quiniela = 'LAQU';
     
-var BET_TYPE_NOT_EXIST = 'bet type does not exist';
+var BET_TYPE_NOT_EXIST = 'Bet type does not exist';
+var INVALID_START_DATE = 'Start date is not a valid date';
+var INVALID_END_DATE = 'End date is not a valid date';
+
+var error400 = function(res, error){
+    res.writeHead(400);
+    res.end(error);
+    console.log(error);  
+};
 
 //
 // Last bet
 //
 route.get('/{betNameType}/last', function(req, res) {
     
-    if (!betsNameTypes[req.params.betNameType]){
-        res.writeHead(400);
-        res.end(BET_TYPE_NOT_EXIST);
-        console.log(BET_TYPE_NOT_EXIST);
-        return;    
+    console.log('/{betNameType}/last >',req.url);
+     
+    if (!betsNameTypes[req.params.betNameType]) {
+        return error400(res, BET_TYPE_NOT_EXIST);
     } 
     bets.getLastBetPlayed(betsNameTypes[req.params.betNameType], function (error, result) {
-        if (error){
-            res.writeHead(400);
-            res.end(JSON.stringify(error));
-            console.log(JSON.stringify(error));
-            return;
+        if (error) {
+            return error400(res,JSON.stringify(error));
         }
         res.writeHead(200);
         res.end(JSON.stringify(result));
@@ -37,19 +43,15 @@ route.get('/{betNameType}/last', function(req, res) {
 //
 route.get('/{betNameType}/{date}', function(req, res) {
     
-    if (!betsNameTypes[req.params.betNameType]){
-        res.writeHead(400);
-        res.end(BET_TYPE_NOT_EXIST);
-        console.log(BET_TYPE_NOT_EXIST);
-        return;    
-    } 
+    console.log('/{betNameType}/{date} >',req.url);
+     
+    if (!betsNameTypes[req.params.betNameType]) {
+        return error400(res, BET_TYPE_NOT_EXIST);
+    }
     var date = new Date(req.params.date);
     bets.getBetsByDate(betsNameTypes[req.params.betNameType], date, date, function (error, result) {
-        if (error){
-            res.writeHead(400);
-            res.end(JSON.stringify(error));
-            console.log(JSON.stringify(error));
-            return;
+        if (error) {
+            return error400(res,JSON.stringify(error));
         }
         res.writeHead(200);
         res.end(JSON.stringify(result));
@@ -60,22 +62,28 @@ route.get('/{betNameType}/{date}', function(req, res) {
 //
 // Date range
 //
-route.get('/{betNameType}/start/{start}/end/{end}', function(req, res) {
+route.get('/{betNameType}', function(req, res) {
  
-    if (!betsNameTypes[req.params.betNameType]){
-        res.writeHead(400);
-        res.end(BET_TYPE_NOT_EXIST);
-        console.log(BET_TYPE_NOT_EXIST);
-        return;    
-    } 
-    var startDate = new Date(req.params.start);
-    var endDate = ( req.params.end ? new Date(req.params.end) : new Date());
+    console.log('/{betNameType} >',req.url);
+  
+    if (!betsNameTypes[req.params.betNameType]) {
+        return error400(res, BET_TYPE_NOT_EXIST);
+    }
+     
+    var query = url.parse(req.url, true).query;
+    var startDate = new Date(query.start);
+    var endDate = (query.end ? new Date(query.end) : new Date());
+    
+    if (!helper.isValidDate(startDate)) {
+        return error400(res, INVALID_START_DATE);
+    }
+    if (!helper.isValidDate(endDate)) {
+        return error400(res, INVALID_END_DATE);
+    }
+     
     bets.getBetsByDate(betsNameTypes[req.params.betNameType], startDate, endDate, function (error, result) {
-        if (error){
-            res.writeHead(400);
-            res.end(JSON.stringify(error));
-            console.log(JSON.stringify(error));
-            return;
+        if (error) {
+            return error400(res,JSON.stringify(error));
         }
         res.writeHead(200);
         res.end(JSON.stringify(result));
