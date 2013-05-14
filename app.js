@@ -12,31 +12,18 @@ var BET_TYPE_NOT_EXIST = 'Bet type does not exist';
 var INVALID_START_DATE = 'Start date is not a valid date';
 var INVALID_END_DATE = 'End date is not a valid date';
 
-var error400 = function(res, error){
+var error400 = function(res, error) {
     res.writeHead(400);
-    res.end(error);
+    res.end(JSON.stringify(error));
     console.log(error);  
 };
 
-//
-// Last bet
-//
-route.get('/{betNameType}/last', function(req, res) {
-    
-    console.log('/{betNameType}/last >',req.url);
-     
-    if (!betsNameTypes[req.params.betNameType]) {
-        return error400(res, BET_TYPE_NOT_EXIST);
-    } 
-    bets.getLastBetPlayed(betsNameTypes[req.params.betNameType], function (error, result) {
-        if (error) {
-            return error400(res,JSON.stringify(error));
-        }
-        res.writeHead(200);
-        res.end(JSON.stringify(result));
-        console.log(JSON.stringify(result));
-    }); 
-});
+var response200 = function(res, result) {
+    res.writeHead(200);
+    res.end(JSON.stringify(result));
+    console.log(JSON.stringify(result));
+};
+
 
 //
 // One date
@@ -51,45 +38,56 @@ route.get('/{betNameType}/{date}', function(req, res) {
     var date = new Date(req.params.date);
     bets.getBetsByDate(betsNameTypes[req.params.betNameType], date, date, function (error, result) {
         if (error) {
-            return error400(res,JSON.stringify(error));
+            return error400(res, error);
         }
-        res.writeHead(200);
-        res.end(JSON.stringify(result));
-        console.log(JSON.stringify(result));
+        return response200(res, result);
     }); 
 });
 
 //
-// Date range
+// Date range or last bet
 //
 route.get('/{betNameType}', function(req, res) {
- 
-    console.log('/{betNameType} >',req.url);
-  
+
+    console.log('/{betNameType} >', req.url);
+
     if (!betsNameTypes[req.params.betNameType]) {
         return error400(res, BET_TYPE_NOT_EXIST);
     }
-     
+
     var query = url.parse(req.url, true).query;
-    var startDate = new Date(query.start);
-    var endDate = (query.end ? new Date(query.end) : new Date());
+
+    // last bet
+    if (!Object.keys(query).length) {
+        bets.getLastBetPlayed(betsNameTypes[req.params.betNameType], function(error, result) {
+            if (error) {
+                return error400(res, error);
+            }
+            return response200(res, result);
+        });
+    }
     
-    if (!helper.isValidDate(startDate)) {
-        return error400(res, INVALID_START_DATE);
-    }
-    if (!helper.isValidDate(endDate)) {
-        return error400(res, INVALID_END_DATE);
-    }
-     
-    bets.getBetsByDate(betsNameTypes[req.params.betNameType], startDate, endDate, function (error, result) {
-        if (error) {
-            return error400(res,JSON.stringify(error));
+    // date range
+    else {
+
+        var startDate = new Date(query.start);
+        var endDate = (query.end ? new Date(query.end) : new Date());
+
+        if (!helper.isValidDate(startDate)) {
+            return error400(res, INVALID_START_DATE);
         }
-        res.writeHead(200);
-        res.end(JSON.stringify(result));
-        console.log(JSON.stringify(result));
-    }); 
-    
+        if (!helper.isValidDate(endDate)) {
+            return error400(res, INVALID_END_DATE);
+        }
+
+        bets.getBetsByDate(betsNameTypes[req.params.betNameType], startDate, endDate, function(error, result) {
+            if (error) {
+                return error400(res, error);
+            }
+            return response200(res, result);
+        });
+    }
+
 });
 
 http.createServer(route).listen(process.env.PORT);
