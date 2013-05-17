@@ -11,19 +11,21 @@ var betsNameTypes = [];
 var BET_TYPE_NOT_EXIST = 'Bet type does not exist';
 var INVALID_START_DATE = 'Start date is not a valid date';
 var INVALID_END_DATE = 'End date is not a valid date';
+var INVALID_DATE = 'Date is not a valid date';
 
 var error400 = function(res, error) {
-    res.writeHead(400);
-    res.end(JSON.stringify(error));
+    res.writeHead(400, {"Content-Type": "text/html;charset=UTF-8"});
+    res.write(JSON.stringify(error));
+    res.end();
     console.log(error);  
 };
 
 var response200 = function(res, result) {
-    res.writeHead(200);
-    res.end(JSON.stringify(result));
+    res.writeHead(200, {"Content-Type": "text/html;charset=UTF-8"});
+    res.write(JSON.stringify(result));
+    res.end();
     console.log(JSON.stringify(result));
 };
-
 
 //
 // One date
@@ -36,6 +38,9 @@ route.get('/{betNameType}/{date}', function(req, res) {
         return error400(res, BET_TYPE_NOT_EXIST);
     }
     var date = new Date(req.params.date);
+    if (!helper.isValidDate(date)) {
+        return error400(res, INVALID_DATE);
+    }
     bets.getBetsByDate(betsNameTypes[req.params.betNameType], date, date, function (error, result) {
         if (error) {
             return error400(res, error);
