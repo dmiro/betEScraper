@@ -56,7 +56,7 @@ REST requests allowed
 ```
 ### Bets by date range
 ```html
-  http://localhost/quiniela?start=2013-05-01&end=2013-05-15
+  http://localhost/quiniela?start=2013-05-01&amp;end=2013-05-15
   [{"wday":"47",
     "date":"2013-05-12T00:00:00.000Z",
     "played":true,
@@ -157,7 +157,7 @@ Peticiones REST permitidas
 ```
 ### Apuestas por rango de fechas
 ```html
-  http://localhost/quiniela?start=2013-05-01&end=2013-05-15
+  http://localhost/quiniela?start=2013-05-01&amp;end=2013-05-15
   [{"wday":"47",
     "date":"2013-05-12T00:00:00.000Z",
     "played":true,
