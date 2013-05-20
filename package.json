@@ -17,6 +17,7 @@
     "jsdom" : "*",
     "http-agent": "*",
     "request" : "*",
-    "router" : "0.6.2"
+    "router" : "0.6.2",
+    "jstoxml" : "*"
     }  
 } 

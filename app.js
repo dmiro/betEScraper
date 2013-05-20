@@ -2,6 +2,7 @@ var http = require('http'),
     bets = require('./lib/bets'),
     helper = require('./lib/helper'),
     url = require('url'),
+    jstoxml = require('jstoxml'),
     route = require('router')(),
     BETS_NAMES_TYPES = require('./lib/bets-types').BETS_NAMES_TYPES;
 
@@ -27,6 +28,12 @@ var response200 = function(res, result) {
     res.write(JSON.stringify(result));
     res.end();
     console.log(JSON.stringify(result));
+    /* xml ejemplo.
+      res.writeHead(200, {"Content-Type": "text/xml;charset=UTF-8"});
+      res.write(jstoxml.toXML(result,{header: true, indent: '  '}));
+      res.end();
+      console.log(jstoxml.toXML(result,{header: true, indent: '  '}));
+    */
 };
 
 //
