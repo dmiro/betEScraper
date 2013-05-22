@@ -2,7 +2,6 @@ var http = require('http'),
     bets = require('./lib/bets'),
     helper = require('./lib/helper'),
     url = require('url'),
-    jstoxml = require('jstoxml'),
     route = require('router')(),
     BETS_NAMES_TYPES = require('./lib/bets-types').BETS_NAMES_TYPES;
 
@@ -23,18 +22,40 @@ var error404 = function(res) {
     res.end();  
 };
 
+/*
+app.use(function(req, res, next) {
+    res.sendData = function(obj) {
+        if (req.accepts('json') || req.accepts('text/html')) {
+            res.header('Content-Type', 'application/json');
+            res.send(obj);
+        } else if (req.accepts('application/xml')) {
+            res.header('Content-Type', 'text/xml');
+            var xml = easyxml.render(obj);
+            res.send(xml);
+        } else {
+            res.send(406);
+        }
+    };
+
+    next();
+});
+
+>> FALTA PASAR true a "true" para que jstoxml.toXML lo parsee correctamente... o cambiar jstoxml.toXML ??
+var response200 = function(res, result) {
+    res.writeHead(200, {"Content-Type": "text/xml;charset=UTF-8"});
+    var jstoxml = require("jstoxml");    
+    res.write(jstoxml.toXML(helper.singularizeArrays({footballpools:result}), {header: true, indent: '  '}));
+    res.end();     
+};
+*/
+
 var response200 = function(res, result) {
     res.writeHead(200, {"Content-Type": "text/html;charset=UTF-8"});
     res.write(JSON.stringify(result));
     res.end();
-    console.log(JSON.stringify(result));
-    /* xml ejemplo.
-      res.writeHead(200, {"Content-Type": "text/xml;charset=UTF-8"});
-      res.write(jstoxml.toXML(result,{header: true, indent: '  '}));
-      res.end();
-      console.log(jstoxml.toXML(result,{header: true, indent: '  '}));
-    */
+    console.log(JSON.stringify(result));     
 };
+
 
 //
 // favicon.ico

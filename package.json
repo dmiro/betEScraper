@@ -2,14 +2,17 @@
   "name": "betEScraper",  
   "version": "0.9.0",
   "private": true,
-  "keywords":["bets","REST","scraper"],
-  "description" : "get spanish state bets data and expose data through interface RESTfull",
-  "homepage" : "http://www.3engine.net/",
-  "contributors": [{
+  "keywords":["bets","bet","betting","REST","RESTful","json","scraper"],
+  "description" : "get Spanish State Bets data and expose data through interface RESTful",
+  "homepage" : "http://github.com/dmiro/betEScraper",
+  "author": {
       "name": "David Miró",
-      "email": "davidmirom@hotmail.com",
-      "url": "http://www.3engine.net"
-    }],
+      "email": "davidmirom@hotmail.com"
+    },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dmiro/betEScraper"
+  },
   "scripts": { 
       "start": "node app.js"  
     },  
@@ -18,6 +21,7 @@
     "http-agent": "*",
     "request" : "*",
     "router" : "0.6.2",
-    "jstoxml" : "*"
+    "jstoxml" : "*",
+    "inflection": "*"
     }  
 } 
