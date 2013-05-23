@@ -3,65 +3,52 @@ var http = require('http'),
     helper = require('./lib/helper'),
     url = require('url'),
     route = require('router')(),
+    jstoxml = require("jstoxml"),
     BETS_NAMES_TYPES = require('./lib/bets-types').BETS_NAMES_TYPES;
 
-var BET_TYPE_NOT_EXIST = 'Bet type does not exist';
-var INVALID_START_DATE = 'Start date is not a valid date';
-var INVALID_END_DATE = 'End date is not a valid date';
-var INVALID_DATE = 'Date is not a valid date';
+var ERROR_BET_TYPE_NOT_EXIST = {httpResponse:400, error:'BetTypeNotExist', message:'Bet type does not exist'};
+var ERROR_INVALID_START_DATE = {httpResponse:400, error:'StartDateNotValid', message:'Start date is not a valid date'};
+var ERROR_INVALID_END_DATE = {httpResponse:400, error:'EndDateNotValid', message:'End date is not a valid date'};
+var ERROR_INVALID_DATE = {httpResponse:400, error:'DateNotValid', message:'Date is not a valid date'};
+var ERROR_FILE_NOT_FOUND = {httpResponse:404, error:'FileNotFound', message:'File not found'};
 
-var error400 = function(res, error) {
-    res.writeHead(400, {"Content-Type": "text/html;charset=UTF-8"});
-    res.write(JSON.stringify(error));
-    res.end();
-    console.log(error);  
+var response = function(req, res, httpResponse, obj) { 
+    // json format
+    if (/json/.test(req.headers.accept) || /text\/html/.test(req.headers.accept)) {
+        res.writeHead(httpResponse, {"Content-Type": "application/json;charset=UTF-8"});
+        res.write(JSON.stringify(obj));
+        res.end(); 
+        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj));  
+    // xml format
+    } else if (/application\/xml/.test(req.headers.accept)) {
+        res.writeHead(httpResponse, {"Content-Type": "text/xml;charset=UTF-8"});
+        res.write(jstoxml.toXML(helper.singularizeArrays(obj), {header: true, indent: '  '})); 
+        res.end(); 
+        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj));    
+    // format not accepted
+    } else {
+        res.writeHead(406);
+        res.end(); 
+        console.log('response >','httpResponse:', 406, 'obj:', JSON.stringify(obj));
+    }
 };
 
-var error404 = function(res) {
-    res.writeHead(404);
-    res.end();  
+var sendError = function(req, res, error) {
+    if (error.httpResponse)
+        response(req, res, error.httpResponse, {error:error});
+    else 
+        response(req, res, error.httpResponse, {error:{httpResponse:400, error:'Error', message:error}});
 };
 
-/*
-app.use(function(req, res, next) {
-    res.sendData = function(obj) {
-        if (req.accepts('json') || req.accepts('text/html')) {
-            res.header('Content-Type', 'application/json');
-            res.send(obj);
-        } else if (req.accepts('application/xml')) {
-            res.header('Content-Type', 'text/xml');
-            var xml = easyxml.render(obj);
-            res.send(xml);
-        } else {
-            res.send(406);
-        }
-    };
-
-    next();
-});
-
->> FALTA PASAR true a "true" para que jstoxml.toXML lo parsee correctamente... o cambiar jstoxml.toXML ??
-var response200 = function(res, result) {
-    res.writeHead(200, {"Content-Type": "text/xml;charset=UTF-8"});
-    var jstoxml = require("jstoxml");    
-    res.write(jstoxml.toXML(helper.singularizeArrays({footballpools:result}), {header: true, indent: '  '}));
-    res.end();     
+var sendResponse = function(req, res, obj) {
+    response(req, res, 200, {results:obj}); // <-- ARREGLAR!!!
 };
-*/
-
-var response200 = function(res, result) {
-    res.writeHead(200, {"Content-Type": "text/html;charset=UTF-8"});
-    res.write(JSON.stringify(result));
-    res.end();
-    console.log(JSON.stringify(result));     
-};
-
 
 //
 // favicon.ico
 //
 route.get('/favicon.ico', function(req, res) {   
-    error404(res);
+    sendError(req, res, ERROR_FILE_NOT_FOUND);
 });
   
 //
@@ -69,7 +56,7 @@ route.get('/favicon.ico', function(req, res) {
 //
 route.get('/', function(req, res) {   
     console.log('/ >',req.url);   
-    return response200(res, Object.keys(BETS_NAMES_TYPES)) ;   
+    return sendResponse(req, res, Object.keys(BETS_NAMES_TYPES)) ;   
 });
 
 //
@@ -82,19 +69,19 @@ route.get('/{betNameType}/{date}', function(req, res) {
     var betType = BETS_NAMES_TYPES[req.params.betNameType];
      
     if (!betType) {
-        return error400(res, BET_TYPE_NOT_EXIST);
+        return sendError(req, res, ERROR_BET_TYPE_NOT_EXIST);
     }
     
     var date = new Date(req.params.date);
     if (!helper.isValidDate(date)) {
-        return error400(res, INVALID_DATE);
+        return sendError(req, res, ERROR_INVALID_DATE);
     }
     
     bets.getBetsByDate(betType, date, date, function (error, result) {
         if (error) {
-            return error400(res, error);
+            return sendError(req, res, error);
         }
-        return response200(res, result);
+        return sendResponse(req, res, result);
     }); 
 });
 
@@ -108,7 +95,7 @@ route.get('/{betNameType}', function(req, res) {
     var betType = BETS_NAMES_TYPES[req.params.betNameType];
 
     if (!betType) {
-        return error400(res, BET_TYPE_NOT_EXIST);
+        return sendError(req, res, ERROR_BET_TYPE_NOT_EXIST);
     }
 
     var query = url.parse(req.url, true).query;
@@ -117,9 +104,9 @@ route.get('/{betNameType}', function(req, res) {
     if (Object.keys(query).length === 0) {
         bets.getLastBetPlayed(betType, function(error, result) {
             if (error) {
-                return error400(res, error);
+                return sendError(req, res, error);
             }
-            return response200(res, result);
+            return sendResponse(req, res, result);
         });
     }
     
@@ -130,17 +117,17 @@ route.get('/{betNameType}', function(req, res) {
         var endDate = (query.end ? new Date(query.end) : new Date());
 
         if (!helper.isValidDate(startDate)) {
-            return error400(res, INVALID_START_DATE);
+            return sendError(req, res, ERROR_INVALID_START_DATE);
         }
         if (!helper.isValidDate(endDate)) {
-            return error400(res, INVALID_END_DATE);
+            return sendError(req, res, ERROR_INVALID_END_DATE);
         }
 
         bets.getBetsByDate(betType, startDate, endDate, function(error, result) {
             if (error) {
-                return error400(res, error);
+                return sendError(req, res, error);
             }
-            return response200(res, result);
+            return sendResponse(req, res, result);
         });
     }
 });
