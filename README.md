@@ -103,11 +103,11 @@ REST requests allowed
    }
 ```
 
-XML Format available
+XML format response available
 ---------------------
 
 If HTTP request header contains a "content-type=application/xml" service returns XML format. 
-Instead if header contains "content-type=json" or "content-type=text/html" returns the default format is JSON.
+Instead if header contains "content-type=json" or "content-type=text/html" returns the default JSON format.
 
 ### Xml format example:
 
@@ -336,7 +336,7 @@ Peticiones REST permitidas
    }
 ``` 
 
-Formato XML disponible
+Formato XML de respuesta disponible
 ---------------------
 
 Si la cabecera de la petición HTTP contiene "content-type=application/xml" el servicio responde en formato XML.
