@@ -6,25 +6,31 @@ var http = require('http'),
     jstoxml = require("jstoxml"),
     BETS_NAMES_TYPES = require('./lib/bets-types').BETS_NAMES_TYPES;
 
-var ERROR_BET_TYPE_NOT_EXIST = {httpResponse:400, error:'BetTypeNotExist', message:'Bet type does not exist'};
+var ERROR_BET_TYPE_NOT_EXIST = {httpResponse:400, error:'BetTypeNotExist',   message:'Bet type does not exist'};
 var ERROR_INVALID_START_DATE = {httpResponse:400, error:'StartDateNotValid', message:'Start date is not a valid date'};
-var ERROR_INVALID_END_DATE = {httpResponse:400, error:'EndDateNotValid', message:'End date is not a valid date'};
-var ERROR_INVALID_DATE = {httpResponse:400, error:'DateNotValid', message:'Date is not a valid date'};
-var ERROR_FILE_NOT_FOUND = {httpResponse:404, error:'FileNotFound', message:'File not found'};
+var ERROR_INVALID_END_DATE =   {httpResponse:400, error:'EndDateNotValid',   message:'End date is not a valid date'};
+var ERROR_INVALID_DATE =       {httpResponse:400, error:'DateNotValid',      message:'Date is not a valid date'};
+var ERROR_FILE_NOT_FOUND =     {httpResponse:404, error:'FileNotFound',      message:'File not found'};
 
+//
+// Send generic response
+//
 var response = function(req, res, httpResponse, obj) { 
+    
     // json format
     if (/json/.test(req.headers.accept) || /text\/html/.test(req.headers.accept)) {
         res.writeHead(httpResponse, {"Content-Type": "application/json;charset=UTF-8"});
-        res.write(JSON.stringify(obj));
+        res.write(JSON.stringify(obj, undefined, '\t'));
         res.end(); 
-        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj));  
+        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj)); 
+        
     // xml format
     } else if (/application\/xml/.test(req.headers.accept)) {
         res.writeHead(httpResponse, {"Content-Type": "text/xml;charset=UTF-8"});
         res.write(jstoxml.toXML(helper.singularizeArrays(obj), {header: true, indent: '  '})); 
         res.end(); 
-        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj));    
+        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj));  
+        
     // format not accepted
     } else {
         res.writeHead(406);
@@ -33,15 +39,21 @@ var response = function(req, res, httpResponse, obj) {
     }
 };
 
+//
+// Send error response
+//
 var sendError = function(req, res, error) {
-    if (error.httpResponse)
+    if (typeof error == 'string') 
+        response(req, res, 400, {error:{httpResponse:400, error:'UndefinedError', message:error}});
+    else
         response(req, res, error.httpResponse, {error:error});
-    else 
-        response(req, res, error.httpResponse, {error:{httpResponse:400, error:'Error', message:error}});
 };
 
+//
+// Send valid response
+//
 var sendResponse = function(req, res, obj) {
-    response(req, res, 200, {results:obj}); // <-- ARREGLAR!!!
+    response(req, res, 200, {results:obj});
 };
 
 //
