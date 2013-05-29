@@ -17,20 +17,29 @@ var ERROR_FILE_NOT_FOUND =     {httpResponse:404, error:'FileNotFound',      mes
 //
 var response = function(req, res, httpResponse, obj) { 
     
+    var data = '';
+    
     // json format
     if (/json/.test(req.headers.accept) || /text\/html/.test(req.headers.accept)) {
         res.writeHead(httpResponse, {"Content-Type": "application/json;charset=UTF-8"});
-        res.write(JSON.stringify(obj, undefined, '\t'));
+        res.write(data = JSON.stringify(obj, undefined, '\t'));
         res.end(); 
-        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj)); 
+        console.log('response >','httpResponse:', httpResponse, 'obj:', data); 
         
     // xml format
     } else if (/application\/xml/.test(req.headers.accept)) {
         res.writeHead(httpResponse, {"Content-Type": "text/xml;charset=UTF-8"});
-        res.write(jstoxml.toXML(helper.singularizeArrays(obj), {header: true, indent: '  '})); 
+        res.write(data = jstoxml.toXML(helper.singularizeArrays(obj), {header: true, indent: '  '})); 
         res.end(); 
-        console.log('response >','httpResponse:', httpResponse, 'obj:', JSON.stringify(obj));  
-        
+        console.log('response >','httpResponse:', httpResponse, 'obj:', data);  
+    
+    // csv format
+    } else if (/application\/vnd.ms-excel/.test(req.headers.accept) || /application\/csv/.test(req.headers.accept)) {
+        res.writeHead(httpResponse, {"Content-Type": "text/csv;charset=UTF-8"});
+        res.write(data = helper.flattenjs2csv(obj)); 
+        res.end(); 
+        console.log('response >','httpResponse:', httpResponse, 'obj:', data);
+    
     // format not accepted
     } else {
         res.writeHead(406);
