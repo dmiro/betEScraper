@@ -1,3 +1,8 @@
+> #### Version 1.0.0
+> - Betting supported: Quiniela and Primitiva
+> - The result is available in JSON, XML and CSV.
+> - Three requests available: available bet types, latest bet and bets on a range of dates.
+
 betEScraper [EN]
 ===============
 
