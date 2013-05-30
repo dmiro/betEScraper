@@ -103,13 +103,18 @@ REST requests allowed
    }
 ```
 
-XML format response available
+Other formats response
 ---------------------
 
-If HTTP request header contains a "content-type=application/xml" service returns XML format. 
-Instead if header contains "content-type=json" or "content-type=text/html" returns the default JSON format.
+The default response format is JSON REST service but are also available
+XML and CSV formats.
 
-### Xml format example:
+### Formats (HTTP request header)
+- JSON: `content-type=json` or `content-type=text/html`
+- XML: `content-type=application/xml`
+- CSV: `content-type=application/vnd.ms-excel` or `content-type=application/csv`
+
+### XML format example:
 
 ```xml
 http://localhost/quiniela
@@ -228,6 +233,41 @@ http://localhost/quiniela
         </matchs>
     </result>
 </results>
+```
+### CSV format example:
+```csv
+http://localhost/quiniela?start=2013-05-01&end=2013-05-15
+wday,date,played,team1,team2,goals1,goals2,result
+47,2013-05-12T00:00:00.000Z,true,RAYO VALLECANO,VALENCIA,0,4,2
+47,2013-05-12T00:00:00.000Z,true,OSASUNA,GETAFE,1,0,1
+47,2013-05-12T00:00:00.000Z,true,R. SOCIEDAD,GRANADA,2,2,X
+47,2013-05-12T00:00:00.000Z,true,ESPANYOL,R. MADRID,1,1,X
+47,2013-05-12T00:00:00.000Z,true,VALLADOLID,DEPORTIVO,1,0,1
+47,2013-05-12T00:00:00.000Z,true,AT. MADRID,BARCELONA,1,2,2
+47,2013-05-12T00:00:00.000Z,true,BETIS,CELTA,1,0,1
+47,2013-05-12T00:00:00.000Z,true,ATHLETIC CLUB,MALLORCA,2,1,1
+47,2013-05-12T00:00:00.000Z,true,SPORTING,CÓRDOBA,3,0,1
+47,2013-05-12T00:00:00.000Z,true,MIRANDÉS,PONFERRADINA,0,0,X
+47,2013-05-12T00:00:00.000Z,true,MURCIA,SABADELL,1,1,X
+47,2013-05-12T00:00:00.000Z,true,LUGO,ALMERÍA,3,5,2
+47,2013-05-12T00:00:00.000Z,true,ALCORCÓN,VILLARREAL,1,3,2
+47,2013-05-12T00:00:00.000Z,true,GIRONA,XEREZ,2,4,2
+47,2013-05-12T00:00:00.000Z,true,MÁLAGA,SEVILLA,0,0,X
+46,2013-05-05T00:00:00.000Z,true,VALENCIA,OSASUNA,4,0,1
+46,2013-05-05T00:00:00.000Z,true,GETAFE,R. SOCIEDAD,2,1,1
+46,2013-05-05T00:00:00.000Z,true,GRANADA,MÁLAGA,1,0,1
+46,2013-05-05T00:00:00.000Z,true,SEVILLA,ESPANYOL,3,0,1
+46,2013-05-05T00:00:00.000Z,true,R. MADRID,VALLADOLID,4,3,1
+46,2013-05-05T00:00:00.000Z,true,BARCELONA,BETIS,4,2,1
+46,2013-05-05T00:00:00.000Z,true,MALLORCA,LEVANTE,1,1,X
+46,2013-05-05T00:00:00.000Z,true,ZARAGOZA,RAYO VALLECANO,3,0,1
+46,2013-05-05T00:00:00.000Z,true,LAS PALMAS,SPORTING,4,2,1
+46,2013-05-05T00:00:00.000Z,true,HÉRCULES,HUESCA,2,1,1
+46,2013-05-05T00:00:00.000Z,true,GUADALAJARA,MIRANDÉS,1,1,X
+46,2013-05-05T00:00:00.000Z,true,ALMERÍA,RACING,2,1,1
+46,2013-05-05T00:00:00.000Z,true,VILLARREAL,ELCHE,2,3,2
+46,2013-05-05T00:00:00.000Z,true,GIRONA,ALCORCÓN,3,2,1
+46,2013-05-05T00:00:00.000Z,true,DEPORTIVO,AT. MADRID,0,0,X
 ```
 
 betEScraper [ES]
@@ -468,10 +508,9 @@ http://localhost/quiniela
     </result>
 </results>
 ```
-
 ### Ejemplo formato CSV
-
 ```csv
+http://localhost/quiniela?start=2013-05-01&end=2013-05-15
 wday,date,played,team1,team2,goals1,goals2,result
 47,2013-05-12T00:00:00.000Z,true,RAYO VALLECANO,VALENCIA,0,4,2
 47,2013-05-12T00:00:00.000Z,true,OSASUNA,GETAFE,1,0,1
